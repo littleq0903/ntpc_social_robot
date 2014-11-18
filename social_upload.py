@@ -8,8 +8,11 @@ import sys
 import requests
 import re
 
-from social_credentials import LOGIN_USERNAME, LOGIN_PASSWORD
-from social_testcases import TEST_APPLIER_ID, TEST_UPLOAD_FILE
+try:
+    from social_credentials import LOGIN_USERNAME, LOGIN_PASSWORD
+    from social_testcases import TEST_APPLIER_ID, TEST_UPLOAD_FILE
+except ImportError:
+    raise ImportError("Please add social_testcases, social_credentials module at first")
 
 """
 Helpers
