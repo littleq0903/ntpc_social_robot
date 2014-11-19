@@ -23,6 +23,12 @@ def cookies_to_dict(cookies_list):
     return {i['name']: i['value'] for i in cookies_list}
 
 
+def build_upload_interface_url(fileno):
+    url_template = SOCIAL_SITE_URL + \
+        "/jsp/SF/SWJSF92_2.jsp?prgNo=W1111&fileSno={fileno}&ctlbtn=0&returnButton=Y"
+    return url_template.format(fileno=fileno)
+
+
 def build_query_url(userid=None, item_type_key=None):
     """
     userid := personal identificates
