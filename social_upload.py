@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.common.by import By
 
 import time
-import sys
 import requests
 import re
+
+import sys
 
 try:
     from social_credentials import LOGIN_USERNAME, LOGIN_PASSWORD
@@ -16,6 +20,7 @@ except ImportError:
         "Please add social_testcases, social_credentials module at first")
 
 SOCIAL_SITE_URL = "https://social.ntpc.gov.tw"
+WAIT_TIMEOUT = 5
 
 """
 Helpers
@@ -23,18 +28,26 @@ Helpers
 
 
 def request_with_cookie(url, cookies={}):
+    """
+    send HTTP requests with cookie set and get result
+    """
     resp = requests.get(url, cookies=cookies, verify=False)
     return resp
 
 
 def cookies_to_dict(cookies_list):
+    """
+    transform [{name: str, value: str, secure: bool}]
+    to format {name: value...} dictionary
+    """
     return {i['name']: i['value'] for i in cookies_list}
 
 
 def build_query_url(userid=None, item_type_key=None):
     """
     userid := personal identificates
-    item_type_key := lowIncome | mediumIncome | mediumIncomeOld | unability | poorKid
+    item_type_key := lowIncome | mediumIncome | mediumIncomeOld |
+                     unability | poorKid
     """
 
     QUERY_USER_URL = SOCIAL_SITE_URL + "/jsp/1/SWJ1111Querydata.jsp?\
@@ -88,43 +101,40 @@ def part1_login(browser):
     Initiate the browser and login
     """
 
+    # go to homepage
     browser.get(SOCIAL_SITE_URL)
 
+    # look for username password input fields and login
     username_input = browser.find_element_by_id('username')
     password_input = browser.find_element_by_id('password')
-
     username_input.send_keys(LOGIN_USERNAME)
     password_input.send_keys(LOGIN_PASSWORD + Keys.RETURN)
 
-    time.sleep(1)  # TODO: listen to 'done' event'
-
-    # cookies = browser.get_cookies()
-    # print type(cookies)
-    # print cookies
-
-    # response_data = request_with_cookie(
-    #     build_query_url(TEST_APPLIER_ID, 'lowIncome'),
-    #     cookies=cookies_to_dict(cookies))
-    # print response_data
-
+    # wait until logged in
+    # Locator format (tuple): (By.<type>, <value>)
+    WebDriverWait(browser, WAIT_TIMEOUT).until(
+        expected_conditions.presence_of_element_located((By.ID, "3000"))
+        )
 
 def part2_findfileno(browser):
     """
+    (Currently deprecated)
     Part 2.
-    Get to the form and find file no. by user idenficates
+    click query button manually, selenium might hang in this approach
     """
+    raise NotImplementedError("method deprecated.")
 
     # directly go to query page
     browser.get(SOCIAL_SITE_URL + "/workspace.jsp?prgNo=1112")
 
-    # TODO: document.frames[1].document.getElementById('txt10_IDNO')
+    # document.frames[1].document.getElementById('txt10_IDNO')
+    # switch to document.frames[1]
     content_frame = browser.find_element_by_id('content_frame')
     browser.switch_to_frame(content_frame)
 
+    # look for query button
     applier_id_field = browser.find_element_by_id('txt10_IDNO')
     query_btn = browser.find_element_by_name('Query1')
-
-    time.sleep(1)  # TODO: listen to 'done' event
 
     applier_id_field.send_keys(TEST_APPLIER_ID)
     query_btn.click()
@@ -133,19 +143,23 @@ def part2_findfileno(browser):
 def part2_queryfileno(browser):
     """
     Part 2.
-    Query the file no directly
+    Query the file number directly
     """
 
     SCRIPT_DATA_SIZE = """
         document.title = grd88.rows(1).innerHTML;
     """
+    # go to query page with parameters directly
     browser.get(build_query_url(TEST_APPLIER_ID, 'lowIncome'))
 
+    # TODO: wait until query finished
     time.sleep(1)
 
+    # use JavaScript to find out the first case and return by set title
     browser.execute_script(SCRIPT_DATA_SIZE)
-    html_contains_fileno = browser.title
 
+    # use re to search which matches file number pattern
+    html_contains_fileno = browser.title
     fileno = re.search(r'\>(\d{11})\&', html_contains_fileno).group(1)
 
     return fileno
@@ -154,8 +168,9 @@ def part2_queryfileno(browser):
 def part3_file_upload(browser, file_number, upload_file_path):
     """
     Part 3.
-    upload file via
+    upload file via robot
     """
+
     def build_upload_interface_url(fileno):
         url_template = SOCIAL_SITE_URL + \
             "/jsp/SF/SWJSF92_2.jsp?prgNo=W1111&fileSno={fileno}&ctlbtn=0&returnButton=Y"
@@ -163,10 +178,8 @@ def part3_file_upload(browser, file_number, upload_file_path):
 
     browser.get(build_upload_interface_url(file_number))
 
+    # Traverse all checkboxes and find first not selected one for uploading.
     for fileIndex in range(5):
-        """
-        Traverse all checkboxes and find first not selected one for uploading.
-        """
         checkboxName = 'checkboxKey%s' % fileIndex
         srcName = 'fileSrc%s' % fileIndex
 
@@ -180,6 +193,7 @@ def part3_file_upload(browser, file_number, upload_file_path):
             elem_checkbox.click()
             elem_src.send_keys(upload_file_path)
 
+    # submit the form
     elem_form = browser.get_element_by_id('FileForm')
     elem_form.submit()
 
