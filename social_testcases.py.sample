@@ -1,0 +1,5 @@
+"""
+Testing data
+"""
+TEST_APPLIER_ID = 'A123456789'
+TEST_UPLOAD_FILE = 'C:\\path\\to\\foo.pdf'
