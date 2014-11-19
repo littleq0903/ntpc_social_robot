@@ -9,7 +9,7 @@ import re
 import sys
 
 from helpers import cookies_to_dict, build_query_url, build_upload_interface_url
-from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT
+from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE
 from social_exceptions import NoFileFoundException
 
 try:
@@ -58,9 +58,14 @@ def part2_queryfileno(browser):
     script_get_first_row = """
         document.title = grd88.rows(1).innerHTML;
     """
+
+    script_get_content = """
+        document.title = document.body.innerHTML;
+    """
     # go to query page with parameters directly
     browser.get(build_query_url(TEST_APPLIER_ID, UPLOAD_TYPE))
 
+    """
     # check the number of applier's files
     browser.execute_script(script_file_num)
     file_number = browser.title
@@ -71,8 +76,10 @@ def part2_queryfileno(browser):
 
     # use JavaScript to find out the first case and return by set title
     browser.execute_script(script_get_first_row)
+    """
 
     # use re to search which matches file number pattern
+    browser.execute_script(script_get_content)
     html_contains_fileno = browser.title
     fileno = re.search(r'\>(\d{11})\&', html_contains_fileno).group(1)
 
@@ -114,7 +121,7 @@ def part3_file_upload(browser, file_number, upload_file_path):
 
 
 def main():
-    browser = webdriver.Ie()  # ie only
+    browser = webdriver.Chrome('./chromedriver')  # ie only
     part1_login(browser)
     file_number = part2_queryfileno(browser)
     part3_file_upload(browser, file_number, "C:\\RHDSetup.log")
