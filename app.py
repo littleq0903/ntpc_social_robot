@@ -121,7 +121,7 @@ def part3_file_upload(browser, file_number, upload_file_path):
 
 
 def main():
-    browser = webdriver.Chrome('./chromedriver')  # ie only
+    browser = webdriver.Chrome('./chromedriver')
     part1_login(browser)
     file_number = part2_queryfileno(browser)
     part3_file_upload(browser, file_number, "C:\\RHDSetup.log")
