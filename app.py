@@ -51,32 +51,13 @@ def part2_queryfileno(browser):
     Part 2.
     Query the file number directly
     """
-    script_file_num = """
-        document.title = grd88.rows.length - 1;
-    """
-
-    script_get_first_row = """
-        document.title = grd88.rows(1).innerHTML;
-    """
 
     script_get_content = """
         document.title = document.body.innerHTML;
     """
+
     # go to query page with parameters directly
     browser.get(build_query_url(TEST_APPLIER_ID, UPLOAD_TYPE))
-
-    """
-    # check the number of applier's files
-    browser.execute_script(script_file_num)
-    file_number = browser.title
-    print 'Detected file number: %s' % file_number
-
-    if file_number < 1:
-        raise NoFileFoundException("Target doesn't have any file.")
-
-    # use JavaScript to find out the first case and return by set title
-    browser.execute_script(script_get_first_row)
-    """
 
     # use re to search which matches file number pattern
     browser.execute_script(script_get_content)
