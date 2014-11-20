@@ -61,7 +61,7 @@ switchnum=undefined"
         'lowIncome': "1001005",
         'mediumIncome': "1001007",
         'mediumIncomeOld': "1001010",
-        'unability': "1001015",
+        'disability': "1001015",
         'poorKid': "1001020"
     }
 
@@ -74,3 +74,10 @@ switchnum=undefined"
 
     return result_url
 
+def extract_id_from_filename(file_path):
+    import os
+    import re
+
+    filename = os.path.basename(file_path)
+
+    return re.search(r"[A-Z]\d{9}", filename).group(0)

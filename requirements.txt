@@ -1,3 +1,4 @@
-chardet==2.1.1
+clime==0.2.7
 requests==2.4.3
 selenium==2.44.0
+wsgiref==0.1.2
