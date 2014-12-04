@@ -9,6 +9,7 @@ from selenium.webdriver.common.alert import Alert
 
 import re
 import sys
+import requests
 
 from helpers import cookies_to_dict, build_query_url, build_upload_interface_url, extract_id_from_filename
 from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE
@@ -125,14 +126,25 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
     """
     applier_id = extract_id_from_filename(file_path)
 
-    browser = webdriver.Chrome('./chromedriver')
+    browser = webdriver.Chrome('chromedriver')
 
     part1_login(browser)
     file_number = part2_queryfileno(browser, applier_id, upload_type)
     part3_file_upload(browser, file_number, file_path.decode('utf-8'))
 
 def download(target_id):
-    pass
+
+    browser = webdriver.Ie()
+
+    part1_login(browser)
+
+    loggedin_cookies = cookies_to_dict(browser.get_cookies())
+
+    get_profile_url = 'https://social.ntpc.gov.tw/jsp/G/SWJG010.jsp?update=1231231123'
+    get_profile_formdata = 'actionType=query&primarykey1=&primarykey2=&primarykey3=&P_QUERYTYPE=G010&P_USERDOWNTN=10100010&P_ALLTITLES=11003005&P_LIMITCONTROL=townApply&P_FDYYY=&P_CHECKFLAG0=0&P_CHECKFLAG=&P_WFNO1=&P_WFNO2=&P_TBHEAD=W00&view_P_APPDTS=&P_APPDTS=&view_P_APPDTE=&P_APPDTE=&P_IDNO=F290211348&P_NAME=&P_DOWNTN=&P_AREA=&view_P_WSDTS=&P_WSDTS=&view_P_WSDTE=&P_WSDTE=&P_APPDOWNTN=&P_APPIDNO=&view_P_ALLOTDTSY=&view_P_ALLOTDTSM=&P_ALLOTDTS=&view_P_ALLOTDTEY=&view_P_ALLOTDTEM=&P_ALLOTDTE=&P_CHK539=&view_P_DOCDT=&P_DOCDT=&P_DOCNO='
+
+    resp_caselist = requests.post(get_profile_url, data=get_profile_formdata, cookies=loggedin_cookies, verify=False)
+    print resp_caselist.text
 
 
 
