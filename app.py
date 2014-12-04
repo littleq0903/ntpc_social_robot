@@ -91,6 +91,8 @@ def part3_file_upload(browser, file_number, upload_file_path):
     elem_src = browser.find_element_by_name(srcName)
     elem_src.send_keys(upload_file_path)
 
+    sys.exit(0)
+
     # submit the form
     script_upload = """
         runAction('Upload');
@@ -129,6 +131,11 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
     file_number = part2_queryfileno(browser, applier_id, upload_type)
     part3_file_upload(browser, file_number, file_path.decode('utf-8'))
 
+def download(target_id):
+    pass
+
+
 
 if __name__ == '__main__':
-    import clime.now
+    import clime
+    clime.start(white_list=['upload', 'download'])
