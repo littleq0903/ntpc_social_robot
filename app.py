@@ -134,20 +134,40 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
 
 def download(target_id):
 
-    browser = webdriver.Ie()
+    #browser = webdriver.Ie()
+    browser = webdriver.Chrome()
 
     part1_login(browser)
 
     loggedin_cookies = cookies_to_dict(browser.get_cookies())
 
-    get_profile_url = 'https://social.ntpc.gov.tw/jsp/G/SWJG010.jsp?update=1231231123'
-    get_profile_formdata = 'actionType=query&primarykey1=&primarykey2=&primarykey3=&P_QUERYTYPE=G010&P_USERDOWNTN=10100010&P_ALLTITLES=11003005&P_LIMITCONTROL=townApply&P_FDYYY=&P_CHECKFLAG0=0&P_CHECKFLAG=&P_WFNO1=&P_WFNO2=&P_TBHEAD=W00&view_P_APPDTS=&P_APPDTS=&view_P_APPDTE=&P_APPDTE=&P_IDNO=F290211348&P_NAME=&P_DOWNTN=&P_AREA=&view_P_WSDTS=&P_WSDTS=&view_P_WSDTE=&P_WSDTE=&P_APPDOWNTN=&P_APPIDNO=&view_P_ALLOTDTSY=&view_P_ALLOTDTSM=&P_ALLOTDTS=&view_P_ALLOTDTEY=&view_P_ALLOTDTEM=&P_ALLOTDTE=&P_CHK539=&view_P_DOCDT=&P_DOCDT=&P_DOCNO='
+    print 'Currently using cookies:', loggedin_cookies
 
-    resp_caselist = requests.post(get_profile_url, data=get_profile_formdata, cookies=loggedin_cookies, verify=False)
-    print resp_caselist.text
+    get_profile_url = 'http://social.ntpc.gov.tw/jsp/G/SWJG010.jsp'
+    get_profile_formdata = 'actionType=query&primarykey1=&primarykey2=&primarykey3=&P_QUERYTYPE=G010&P_USERDOWNTN=10100010&P_ALLTITLES=11003005&P_LIMITCONTROL=townApply&P_FDYYY=&P_CHECKFLAG0=0&P_CHECKFLAG=&P_WFNO1=&P_WFNO2=&P_TBHEAD=W00&view_P_APPDTS=&P_APPDTS=&view_P_APPDTE=&P_APPDTE=&P_IDNO=%s&P_NAME=&P_DOWNTN=&P_AREA=&view_P_WSDTS=&P_WSDTS=&view_P_WSDTE=&P_WSDTE=&P_APPDOWNTN=&P_APPIDNO=&view_P_ALLOTDTSY=&view_P_ALLOTDTSM=&P_ALLOTDTS=&view_P_ALLOTDTEY=&view_P_ALLOTDTEM=&P_ALLOTDTE=&P_CHK539=&view_P_DOCDT=&P_DOCDT=&P_DOCNO=' % target_id
+    applied_profile_formdata = 'actionType=query&primarykey1=&primarykey2=&primarykey3=&P_QUERYTYPE=G010&P_USERDOWNTN=10100010&P_ALLTITLES=11003005&P_LIMITCONTROL=townApply&P_FDYYY=&P_CHECKFLAG0=1&P_CHECKFLAG=&P_WFNO1=1001005&P_WFNO2=&P_TBHEAD=W11&view_P_APPDTS=&P_APPDTS=&view_P_APPDTE=&P_APPDTE=&P_IDNO=F290211348&P_NAME=&P_DOWNTN=&P_AREA=&view_P_WSDTS=&P_WSDTS=&view_P_WSDTE=&P_WSDTE=&P_APPDOWNTN=10100010&P_APPIDNO=&view_P_ALLOTDTSY=&view_P_ALLOTDTSM=&P_ALLOTDTS=&view_P_ALLOTDTEY=&view_P_ALLOTDTEM=&P_ALLOTDTE=&P_CHK539=&view_P_DOCDT=&P_DOCDT=&P_DOCNO=&checkboxStartRow=0&checkboxEndRow=0&ChangePage=&CurrentPage=0'
+
+    resp_caselist = requests.post(get_profile_url,
+        data=applied_profile_formdata,
+        cookies=loggedin_cookies,
+        verify=False)
+    print 'received content:', resp_caselist.text
+
+def query(target_id, target_type='lowIncome'):
+    browser = webdriver.Chrome()
+    part1_login(browser)
+    loggedin_cookies = cookies_to_dict(browser.get_cookies())
+
+    resp_caselist = requests.get(build_query_url(target_id, target_type),
+        cookies=loggedin_cookies,
+        verify=False)
+    import ipdb
+    ipdb.set_trace()
+    print 'received content:', resp_caselist.text
+
 
 
 
 if __name__ == '__main__':
     import clime
-    clime.start(white_list=['upload', 'download'])
+    clime.start(white_list=['upload', 'download', 'query'])

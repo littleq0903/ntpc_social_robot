@@ -1,4 +1,4 @@
-SOCIAL_SITE_URL = "https://social.ntpc.gov.tw"
+SOCIAL_SITE_URL = "http://social.ntpc.gov.tw"
 WAIT_TIMEOUT = 5
 
 # file category
