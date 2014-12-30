@@ -53,6 +53,7 @@ def part2_queryfileno(browser, applier_id, upload_type):
     Part 2.
     Query the file number directly
     """
+    utf8 = lambda x: x.decode('utf-8')
 
     script_get_content = """
         document.title = document.body.innerHTML;
@@ -69,15 +70,22 @@ def part2_queryfileno(browser, applier_id, upload_type):
     # and file no. is not 11 digits anymore, could be 10 or 9.
     # we assume 12 - 7 for futher usage.
     data = convert_query_result_to_dict(html_contains_fileno)
-    data_matched_id = filter(lambda d: d['身分證號'.decode('utf-8')] == applier_id, data)
-    return data_matched_id[0]["案號".decode('utf-8')].strip()
+    data_matched_id = filter(lambda d: d[utf8('身分證號')] == applier_id, data)
+    selected_file = data_matched_id[0]
 
 
-def part3_file_upload(browser, file_number, upload_file_path):
+    print utf8('案號'), selected_file[utf8("案號")]
+    print selected_file
+ 
+    return selected_file[utf8("案號")].strip()
+
+
+def part3_file_upload(browser, file_number, upload_file_path, user_id):
     """
     Part 3.
     upload file via robot
     """
+    upload_file_path = os.path.abspath(upload_file_path)
 
     browser.get(build_upload_interface_url(file_number))
 
@@ -94,6 +102,7 @@ def part3_file_upload(browser, file_number, upload_file_path):
     elem_src = browser.find_element_by_name(srcName)
     elem_src.send_keys(upload_file_path)
 
+    import ipdb; ipdb.set_trace()
     # submit the form
     script_upload = """
         runAction('Upload');
@@ -110,7 +119,7 @@ def part3_file_upload(browser, file_number, upload_file_path):
 
     # success detection
     if re.search(u"新增共 \\d 個檔案", alert_text):
-        print 'uploaded %s' % file_number
+        print 'uploaded %s - %s' % (user_id, file_number)
         browser.close()
     else:
         # should be an alert here
@@ -133,7 +142,7 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
 
     part1_login(browser)
     file_number = part2_queryfileno(browser, applier_id, upload_type)
-    part3_file_upload(browser, file_number, file_path.decode('utf-8'))
+    part3_file_upload(browser, file_number, file_path.decode('utf-8'), applier_id)
 
 def batchupload(dir_path, upload_type=UPLOAD_TYPE):
     """Batch upload all files in the specified folder
@@ -146,8 +155,8 @@ def batchupload(dir_path, upload_type=UPLOAD_TYPE):
         pdf_files = filter(lambda name: name.endswith('.pdf'), files)
 
         for pdf_file in pdf_files:
-            abspath = os.path.abspath(os.path.join(root, pdf_file))
-            upload(abspath, upload_type=upload_type)
+            fullpath = os.path.join(root, pdf_file)
+            upload(fullpath, upload_type=upload_type)
 
 
 
