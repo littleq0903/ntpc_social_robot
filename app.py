@@ -8,9 +8,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.alert import Alert
 
 import re
+import os
 import sys
 
-from helpers import cookies_to_dict, build_query_url, build_upload_interface_url, extract_id_from_filename
+from helpers import *
 from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE
 from social_exceptions import NoFileFoundException
 
@@ -63,9 +64,13 @@ def part2_queryfileno(browser, applier_id, upload_type):
     # use re to search which matches file number pattern
     browser.execute_script(script_get_content)
     html_contains_fileno = browser.title
-    fileno = re.search(r'\>(\d{11})\&', html_contains_fileno).group(1)
 
-    return fileno
+    #TODO: change pattern to <td>(fileno)</td><td>userid</td>,
+    # and file no. is not 11 digits anymore, could be 10 or 9.
+    # we assume 12 - 7 for futher usage.
+    data = convert_query_result_to_dict(html_contains_fileno)
+    data_matched_id = filter(lambda d: d['身分證號'.decode('utf-8')] == applier_id, data)
+    return data_matched_id[0]["案號".decode('utf-8')].strip()
 
 
 def part3_file_upload(browser, file_number, upload_file_path):
@@ -76,10 +81,8 @@ def part3_file_upload(browser, file_number, upload_file_path):
 
     browser.get(build_upload_interface_url(file_number))
 
-    """
     WebDriverWait(browser, WAIT_TIMEOUT)\
             .until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "input[type=file]")))
-    """
 
     # Traverse all checkboxes and find first not selected one for uploading.
     # (update), just use the first one it's okay
@@ -90,8 +93,6 @@ def part3_file_upload(browser, file_number, upload_file_path):
     # upload file
     elem_src = browser.find_element_by_name(srcName)
     elem_src.send_keys(upload_file_path)
-
-    sys.exit(0)
 
     # submit the form
     script_upload = """
@@ -106,22 +107,25 @@ def part3_file_upload(browser, file_number, upload_file_path):
     alert_text = Alert(browser).text
     Alert(browser).accept()
 
-    # should be an alert here
-    print "Alert:", alert_text
 
     # success detection
     if re.search(u"新增共 \\d 個檔案", alert_text):
-        print 'succeed'
+        print 'uploaded %s' % file_number
         browser.close()
-        sys.exit(0)
     else:
+        # should be an alert here
+        print "Alert:", alert_text
         print 'failed'
+
+"""
+Commands
+"""
 
 
 def upload(file_path, upload_type=UPLOAD_TYPE):
     """Upload file.
 
-    -t=<str>, --type=<str> upload type, options: lowIncome, mediumIncome, mediumIncomeOld, disability, poorKid
+    -t=<str>, --upload_type=<str>  upload type, options: lowIncome, mediumIncome, mediumIncomeOld, disability, poorKid
     """
     applier_id = extract_id_from_filename(file_path)
 
@@ -131,6 +135,22 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
     file_number = part2_queryfileno(browser, applier_id, upload_type)
     part3_file_upload(browser, file_number, file_path.decode('utf-8'))
 
+def batchupload(dir_path, upload_type=UPLOAD_TYPE):
+    """Batch upload all files in the specified folder
+
+    -t=<str>, --upload_type=<str>  upload type, options: lowIncome, mediumIncome, mediumIncomeOld, disability, poorKid
+    """
+
+    # get all pdf files
+    for root, dirs, files in os.walk(dir_path):
+        pdf_files = filter(lambda name: name.endswith('.pdf'), files)
+
+        for pdf_file in pdf_files:
+            abspath = os.path.abspath(os.path.join(root, pdf_file))
+            upload(abspath, upload_type=upload_type)
+
+
+
 def download(target_id):
     pass
 
@@ -138,4 +158,4 @@ def download(target_id):
 
 if __name__ == '__main__':
     import clime
-    clime.start(white_list=['upload', 'download'])
+    clime.start(white_list=['upload', 'download', 'batchupload'])
