@@ -72,7 +72,31 @@ def build_upload_interface_url(fileno):
     return url_template.format(fileno=fileno)
 
 
-def build_query_url(userid=None, item_type_key=None):
+def query_fcode(userid, item_type_key, fileno):
+    query_url = SOCIAL_SITE_URL + "/jsp/1/SWJ1111Querydata.jsp?\
+where_str=&\
+P_OBJID=&\
+P_TBHEAD=&\
+cmd=Query2&\
+mycmd=2&\
+status=undefined&\
+userid=A221932797&\
+wfItem=1001015&\
+tableFlag=W31&\
+app_date=2014-12-04&\
+creatdt2=&\
+paperno=&\
+idno=A221932797&\
+loginID=A126348202&\
+loginName=劉宇竤&\
+loginDept=各區公所&\
+prgno=1112&\
+deptNo=1099&\
+switchnum=undefined"
+
+
+
+def build_query_url(userid, item_type_key):
     """
     userid := personal identificates
     item_type_key := lowIncome | mediumIncome | mediumIncomeOld |
@@ -146,4 +170,4 @@ if __name__ == '__main__':
             return ret
     mypp = MyPP()
     mypp.pprint(convert_query_result_to_dict(open('./test_resource/query_sample.html').read()))
-                                        
+

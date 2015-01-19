@@ -36,9 +36,14 @@ def part1_login(browser):
     # go to homepage
     browser.get(SOCIAL_SITE_URL)
 
+    # wait until login dialog has been loaded
+    WebDriverWait(browser, WAIT_TIMEOUT).until(
+        expected_conditions.presence_of_element_located((By.NAME, "password"))
+        )
+
     # look for username password input fields and login
-    username_input = browser.find_element_by_id('username')
-    password_input = browser.find_element_by_id('password')
+    username_input = browser.find_element_by_name('username')
+    password_input = browser.find_element_by_name('password')
     username_input.send_keys(LOGIN_USERNAME)
     password_input.send_keys(LOGIN_PASSWORD + Keys.RETURN)
 
@@ -74,11 +79,11 @@ def part2_queryfileno(browser, applier_id, upload_type):
     data_matched_id = filter(lambda d: d[utf8('身分證號')] == applier_id, data)
     selected_file = data_matched_id[0]
 
+    print "FCODE: %s" % selected_file["FCODE"]
+    import pprint
+    pprint.pprint(selected_file)
 
-    print utf8('案號'), selected_file[utf8("案號")]
-    print selected_file
- 
-    return selected_file[utf8("案號")].strip()
+    return selected_file["FCODE"].strip()
 
 
 def part3_file_upload(browser, file_number, upload_file_path, user_id):
@@ -103,7 +108,6 @@ def part3_file_upload(browser, file_number, upload_file_path, user_id):
     elem_src = browser.find_element_by_name(srcName)
     elem_src.send_keys(upload_file_path)
 
-    import ipdb; ipdb.set_trace()
     # submit the form
     script_upload = """
         runAction('Upload');
@@ -139,11 +143,12 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
     """
     applier_id = extract_id_from_filename(file_path)
 
-    browser = webdriver.Chrome('chromedriver')
+    browser = webdriver.Ie()
+    #browser = webdriver.Chrome('chromedriver')
 
     part1_login(browser)
     file_number = part2_queryfileno(browser, applier_id, upload_type)
-    part3_file_upload(browser, file_number, file_path.decode('utf-8'), applier_id)
+    part3_file_upload(browser, file_number, file_path.decode('cp950'), applier_id)
 
 def batchupload(dir_path, upload_type=UPLOAD_TYPE):
     """Batch upload all files in the specified folder
@@ -179,4 +184,4 @@ def download(target_id):
 
 if __name__ == '__main__':
     import clime
-    clime.start(white_list=['upload', 'download', 'batchupload'])
+    clime.start(white_list=['upload', 'download', 'batchupload'], debug=True)
