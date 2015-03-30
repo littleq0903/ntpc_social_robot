@@ -9,3 +9,5 @@ WAIT_TIMEOUT = 5
 #  'disability': "1001015"
 #  'poorKid': "1001020"
 UPLOAD_TYPE = 'lowIncome'
+
+DEBUG = False

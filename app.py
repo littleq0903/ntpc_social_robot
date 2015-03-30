@@ -13,7 +13,7 @@ import sys
 import requests
 
 from helpers import *
-from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE
+from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE, DEBUG
 from social_exceptions import NoFileFoundException
 
 try:
@@ -79,9 +79,10 @@ def part2_queryfileno(browser, applier_id, upload_type):
     data_matched_id = filter(lambda d: d[utf8('身分證號')] == applier_id, data)
     selected_file = data_matched_id[0]
 
-    print "FCODE: %s" % selected_file["FCODE"]
-    import pprint
-    pprint.pprint(selected_file)
+    if DEBUG:
+        print "FCODE: %s" % selected_file["FCODE"]
+        import pprint
+        pprint.pprint(selected_file)
 
     return selected_file["FCODE"].strip()
 
@@ -136,7 +137,7 @@ Commands
 """
 
 
-def upload(file_path, upload_type=UPLOAD_TYPE):
+def upload(file_path, upload_type=UPLOAD_TYPE, close_after=False):
     """Upload file.
 
     -t=<str>, --upload_type=<str>  upload type, options: lowIncome, mediumIncome, mediumIncomeOld, disability, poorKid
@@ -146,9 +147,16 @@ def upload(file_path, upload_type=UPLOAD_TYPE):
     browser = webdriver.Ie()
     #browser = webdriver.Chrome('chromedriver')
 
-    part1_login(browser)
-    file_number = part2_queryfileno(browser, applier_id, upload_type)
-    part3_file_upload(browser, file_number, file_path.decode('cp950'), applier_id)
+    try:
+        part1_login(browser)
+        file_number = part2_queryfileno(browser, applier_id, upload_type)
+        part3_file_upload(browser, file_number, file_path.decode('cp950'), applier_id)
+    except:
+        if close_after:
+            browser.close()
+        raise
+
+
 
 def batchupload(dir_path, upload_type=UPLOAD_TYPE):
     """Batch upload all files in the specified folder
@@ -158,11 +166,25 @@ def batchupload(dir_path, upload_type=UPLOAD_TYPE):
 
     # get all pdf files
     for root, dirs, files in os.walk(dir_path):
-        pdf_files = filter(lambda name: name.endswith('.pdf'), files)
+        def is_processed(name):
+            result = name.endswith('.pdf')
+            postfix_titles = ['done', 'failed']
+
+            for postfix_title in postfix_titles:
+                result = result and not name.endswith('-%s.pdf' % postfix_title)
+            return result
+        pdf_files = filter(is_processed, files)
 
         for pdf_file in pdf_files:
             fullpath = os.path.join(root, pdf_file)
-            upload(fullpath, upload_type=upload_type)
+            try:
+                upload(fullpath, upload_type=upload_type, close_after=True)
+            except Exception as e:
+                # when looking up FCODE failed, skip to the next case.
+                print 'uploading %s failed. Reason: %s' % (pdf_file, e)
+                update_filename(fullpath, postfix='failed')
+                continue
+            update_filename(fullpath)
 
 
 

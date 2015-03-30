@@ -159,6 +159,18 @@ def extract_id_from_filename(file_path):
 
     return re.search(r"[A-Z]\d{9}", filename).group(0)
 
+def update_filename(origin_path, postfix="done"):
+    import os
+    import re
+
+    new_path = re.sub(r".pdf$", "-%s.pdf" % postfix, origin_path)
+    os.rename(origin_path, new_path)
+
+    if not os.path.exists(new_path):
+        raise Exception("Changing file name failed.")
+    else:
+        return True
+
 
 if __name__ == '__main__':
     import pprint
