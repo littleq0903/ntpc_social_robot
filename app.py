@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.alert import Alert
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 import re
 import os
@@ -13,7 +14,7 @@ import sys
 import requests
 
 from helpers import *
-from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE, DEBUG
+from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE, DEBUG, MAX_RETRIES
 from social_exceptions import NoFileFoundException
 
 try:
@@ -84,7 +85,11 @@ def part2_queryfileno(browser, applier_id, upload_type):
         import pprint
         pprint.pprint(selected_file)
 
-    return selected_file["FCODE"].strip()
+    return {
+        'FCODE': selected_file["FCODE"].strip() if selected_file["FCODE"] else None,
+        'PAPERNO': selected_file[utf8('案號')].strip() or None,
+        'CREATDT': selected_file['crtdt'].strip() or None
+    }
 
 
 def part3_file_upload(browser, file_number, upload_file_path, user_id):
@@ -121,6 +126,7 @@ def part3_file_upload(browser, file_number, upload_file_path, user_id):
 
     alert_text = Alert(browser).text
     Alert(browser).accept()
+    browser.switch_to_default_content()
 
 
     # success detection
@@ -132,6 +138,23 @@ def part3_file_upload(browser, file_number, upload_file_path, user_id):
         print "Alert:", alert_text
         print 'failed'
 
+def action_gen_filesno(browser, paperno, creatdt):
+    browser.get("https://social.ntpc.gov.tw/workspace.jsp?prgNo=1112")
+    browser.implicitly_wait(3)
+    browser.switch_to.frame("content_frame")
+
+    assert paperno and creatdt
+
+    script_to_gen_filesno = compose_set_fileSno_script(paperno, creatdt)
+    if DEBUG: print script_to_gen_filesno.encode('utf-8')
+
+    browser.execute_script(script_to_gen_filesno)
+    WebDriverWait(browser, WAIT_TIMEOUT)\
+        .until(expected_conditions.alert_is_present())
+    browser.switch_to_alert().accept()
+    browser.implicitly_wait(1)
+
+
 """
 Commands
 """
@@ -142,15 +165,34 @@ def upload(file_path, upload_type=UPLOAD_TYPE, close_after=False):
 
     -t=<str>, --upload_type=<str>  upload type, options: lowIncome, mediumIncome, mediumIncomeOld, disability, poorKid
     """
+
+    if DEBUG: print "file: %s" % file_path
+
     applier_id = extract_id_from_filename(file_path)
+
+    if DEBUG: print "detected %s in file name" % applier_id
 
     browser = webdriver.Ie()
     #browser = webdriver.Chrome('chromedriver')
 
     try:
         part1_login(browser)
-        file_number = part2_queryfileno(browser, applier_id, upload_type)
-        part3_file_upload(browser, file_number, file_path.decode('cp950'), applier_id)
+
+        # due to FCODE won't show up everytime, so we can try 3 times.
+        data = part2_queryfileno(browser, applier_id, upload_type)
+        file_number = data['FCODE']
+        
+        if not file_number:
+            # cannot find FCODE, start generating it.
+            paperno = data['PAPERNO']
+            creatdt = data['CREATDT']
+
+            action_gen_filesno(browser, paperno, creatdt)
+
+            data = part2_queryfileno(browser, applier_id, upload_type)
+            file_number = data['FCODE']
+
+        part3_file_upload(browser, file_number, file_path, applier_id)
     except:
         if close_after:
             browser.close()
@@ -165,7 +207,7 @@ def batchupload(dir_path, upload_type=UPLOAD_TYPE):
     """
 
     # get all pdf files
-    for root, dirs, files in os.walk(dir_path):
+    for root, dirs, files in os.walk(dir_path.decode('cp950')):
         def is_processed(name):
             result = name.endswith('.pdf')
             postfix_titles = ['done', 'failed']
@@ -181,12 +223,26 @@ def batchupload(dir_path, upload_type=UPLOAD_TYPE):
                 upload(fullpath, upload_type=upload_type, close_after=True)
             except Exception as e:
                 # when looking up FCODE failed, skip to the next case.
-                print 'uploading %s failed. Reason: %s' % (pdf_file, e)
+                print ('uploading %s failed.' % pdf_file), 
+                print 'Reason: %s' % e if DEBUG else ''
+                if DEBUG:
+                    raise
                 update_filename(fullpath, postfix='failed')
                 continue
             update_filename(fullpath)
 
+def reset_fail(dir_path):
 
+    for root, dirs, files in os.walk(dir_path.decode("cp950")):
+        failed_files = filter(lambda n: n.endswith('-failed.pdf'), files)
+
+        for failed_file in failed_files:
+            fullpath = os.path.join(root, failed_file)
+
+            try:
+                reset_filename(fullpath)
+            except WindowsError:
+                print [fullpath]
 
 def download(target_id):
 
@@ -206,4 +262,4 @@ def download(target_id):
 
 if __name__ == '__main__':
     import clime
-    clime.start(white_list=['upload', 'download', 'batchupload'], debug=True)
+    clime.start(white_list=['upload', 'download', 'batchupload', 'reset_fail'], debug=DEBUG)

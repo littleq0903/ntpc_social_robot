@@ -171,6 +171,47 @@ def update_filename(origin_path, postfix="done"):
     else:
         return True
 
+def reset_filename(origin_path):
+    import os
+    import re
+
+    new_path = re.sub(r"-\w+.pdf$", ".pdf", origin_path)
+    os.rename(origin_path, new_path)
+    
+    if not os.path.exists(new_path):
+        raise Exception("Changing file name failed.")
+    else:
+        return True
+
+def compose_sql_xml_cmd(paperno, creatdt):
+    """
+    Composing the sql command that used to generate fileSno for case.
+    paperno: txt10IPAPER_NO.value
+    creatdt: txt30DCREATDT.value
+
+    str_file = "<RunSQL>
+    <Package><work_id>I</work_id><gcode_stat>0</gcode_stat><table_name>FILE_MATCH</table_name>
+    <col_namev>OBJID,FCODE,PAPER_NO,APP_DATE,WFNO1</col_namev>
+    <where></where>
+    <values>NEXTVAL FOR BSSEQ+ power(2,28),$$NEXTVAL FOR BSSEQ+ power(2,28)+1000000000000,$$9312002241,$$TimeStamp('2014-09-14 18:08:46'),$$0</values>
+    </Package>
+    </RunSQL>"
+    """
+    return u"<RunSQL><Package>\
+<work_id>I</work_id>\
+<gcode_stat>0</gcode_stat>\
+<table_name>FILE_MATCH</table_name><col_namev>OBJID,FCODE,PAPER_NO,APP_DATE,WFNO1</col_namev>\
+<where></where>\
+<values>NEXTVAL FOR BSSEQ+ power(2,28),$$NEXTVAL FOR BSSEQ+ power(2,28)+1000000000000,$$%s,$$TimeStamp('%s'),$$0</values>\
+</Package></RunSQL>" % (paperno, creatdt)
+
+def compose_set_fileSno_script(paperno, creatdt):
+    return """
+    (function (){
+        var temp_strfile = "%s";
+        execSQL("IF", temp_strfile, "", "I");
+    })()
+    """ % (compose_sql_xml_cmd(paperno, creatdt))
 
 if __name__ == '__main__':
     import pprint

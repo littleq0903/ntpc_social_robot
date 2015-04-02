@@ -1,5 +1,5 @@
 SOCIAL_SITE_URL = "https://social.ntpc.gov.tw"
-WAIT_TIMEOUT = 5
+WAIT_TIMEOUT = 10
 
 # file category
 # options:
@@ -11,3 +11,4 @@ WAIT_TIMEOUT = 5
 UPLOAD_TYPE = 'lowIncome'
 
 DEBUG = False
+MAX_RETRIES = 3
