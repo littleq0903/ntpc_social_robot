@@ -46,6 +46,7 @@ def part1_login(browser):
     username_input = browser.find_element_by_name('username')
     password_input = browser.find_element_by_name('password')
     username_input.send_keys(LOGIN_USERNAME)
+    password_input.clear()
     password_input.send_keys(LOGIN_PASSWORD + Keys.RETURN)
 
     # wait until logged in
