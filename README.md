@@ -99,3 +99,9 @@ Troubleshooting
 ### IE11 登入社政系統後停止動作
 
 若程式可以正常打開 IE11 瀏覽器、輸入帳號密碼，但登入後就沒有動作了，請解除安裝 Windows 更新檔 KB3025390 。（參考資料：[StackOverflow](http://stackoverflow.com/questions/28069064/selenium-scripts-fail-after-newest-windows-update)、[移除特定 Windows Update 教學](http://lifehacker.com/how-to-uninstall-a-windows-update-that-broke-something-1676817197)）
+
+Contributors
+----------
+
+* 138T Colin Su [@littleq0903](https://github.com/littleq0903)
+* 149T Johnson Liang [@MrOrz](https://github.com/MrOrz)
