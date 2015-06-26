@@ -20,8 +20,8 @@ Usage
 
 ### 使用步驟
 
-1. 將 PDF 檔案分放在「低收」、「中低收」、「中低老人」、「身障」、「兒少」五個資料夾。
-2. 雙擊「`低收.bat`」以上傳「低收」內的檔案，程式將會自動登入社政系統並上傳檔案。其他 4 資料夾以此類推。
+1. 將 PDF 檔案分放在「低收」、「中低收」、「中低老人」、「身障」、「兒少」5 個資料夾。
+2. 雙擊「`上傳所有檔案.bat`」以上上述 5 資料夾內的檔案，程式將會自動登入社政系統並執行上傳。
 3. 上傳完成後，「低收」、「中低收」、「中低老人」、「身障」、「兒少」五個資料夾中的檔案名稱後應該都已被標上 `-done` 或 `failed`。被標上 `-done` 的檔案可以被安全刪除；再次執行 `.bat` 檔則可重新上傳被標上 `failed` 的檔案。
 
 
@@ -53,7 +53,7 @@ Setup
 
 ### 4. 設定 credential
 
-將專案目錄下的 `social_credentials.py.sample` 更名為 `social_credentials.py`。填入用於登入社政系統的資訊。
+將 `lib/social_credentials.py.sample` 更名為 `lib/social_credentials.py`。打開此檔，填入用於登入社政系統的資訊。
 
 Python 的 Windows installer 會安裝 [IDLE 文字編輯器](https://en.wikipedia.org/wiki/IDLE_(Python))，可以直接使用 IDLE 編輯。
 
