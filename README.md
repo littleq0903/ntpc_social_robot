@@ -37,7 +37,11 @@ Setup
 
 ### 2. 下載本專案並安裝 dependency
 
-點擊 Github 右邊的「Download ZIP」下載本專案，解壓縮到桌面上，然後改名成任何方便的名字。點兩下 `INSTALL/dependency.bat` 開始安裝系統需要的 dependency。
+首先，請先安裝 Windows update KB2704299 [32bit](http://hotfixv4.microsoft.com/Windows%207/Windows%20Server2008%20R2%20SP1/sp2/Fix387976/7600/free/448094_intl_i386_zip.exe) / [64bit](http://hotfixv4.microsoft.com/Windows%207/Windows%20Server2008%20R2%20SP1/sp2/Fix387976/7600/free/448095_intl_x64_zip.exe)，使 Windows 可以正確解壓縮含有 UTF-8 檔案名稱的 zip 檔（需要重新開機）。
+
+接著，點擊 Github 右邊的「Download ZIP」下載本專案，解壓縮到桌面上，然後改名成任何方便的名字。
+
+最後，點兩下 `INSTALL/dependency.bat` 開始安裝系統需要的 dependency。
 
 ### 3. 設定 Selenium Internet Explorer Driver
 
