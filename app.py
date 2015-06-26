@@ -15,7 +15,7 @@ import requests
 
 from helpers import *
 from settings import SOCIAL_SITE_URL, WAIT_TIMEOUT, UPLOAD_TYPE, DEBUG, MAX_RETRIES
-from social_exceptions import NoFileFoundException
+from social_exceptions import NoFileFoundException, UploadAlertException
 
 try:
     from social_credentials import LOGIN_USERNAME, LOGIN_PASSWORD
@@ -136,6 +136,7 @@ def part3_file_upload(browser, file_number, upload_file_path, user_id):
         # should be an alert here
         print "Alert:", alert_text
         print 'failed'
+        raise UploadAlertException(alert_text)
 
 def action_gen_filesno(browser, paperno, creatdt):
     browser.get("https://social.ntpc.gov.tw/workspace.jsp?prgNo=1112")
