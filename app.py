@@ -173,7 +173,6 @@ def upload(file_path, upload_type=UPLOAD_TYPE, close_after=False):
     if DEBUG: print "detected %s in file name" % applier_id
 
     browser = webdriver.Ie()
-    #browser = webdriver.Chrome('chromedriver')
 
     try:
         part1_login(browser)
