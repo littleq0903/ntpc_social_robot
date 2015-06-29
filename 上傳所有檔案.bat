@@ -21,5 +21,5 @@ echo 上傳「兒少」案件......
 python lib/app.py reset-fail 兒少
 python lib/app.py batchupload -t poorKid 兒少
 
-echo 上傳完成，可以打開資料夾看看結果囉！:)
+echo 執行完成，可以打開資料夾看看結果囉！:)
 pause
