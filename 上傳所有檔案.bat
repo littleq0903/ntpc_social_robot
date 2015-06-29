@@ -1,3 +1,7 @@
+@echo off
+chcp 65001
+SET PATH=%PATH%;C:\python27
+
 echo 上傳「低收入戶」案件⋯⋯
 python lib/app.py reset-fail 低收
 python lib/app.py batchupload -t lowIncome 低收
