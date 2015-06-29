@@ -53,7 +53,7 @@ Setup
 * 瀏覽器縮放必須設定在 100%。
 * 若 IE 版本為 11 且為 32bit Windows，請點兩下 `INSTALL/32bit_ie11.reg`；若 IE 版本為 11 且為 64bit Windows，請點兩下 `INSTALL/64bit_ie11.reg`。
 
-以上設定完成後，可以刪除 `INSTALL` 資料夾。
+以上設定完成後，可以刪除 `INSTALL` 資料夾、`.gitattributes`、`.gitignore`、`LICENSE` 以及 `README.md`。
 
 ### 4. 設定 credential
 
