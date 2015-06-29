@@ -1,6 +1,5 @@
 @echo off
-chcp 65001
-SET PATH=%PATH%;C:\python27\Scrips
+SET PATH=%PATH%;C:\python27\Scripts
 pip install -r ../lib/requirements.txt
-echo "å®‰è£å®Œæˆã€‚"
+echo "¦w¸Ë§¹¦¨¡C"
 pause

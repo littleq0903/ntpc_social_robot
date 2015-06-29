@@ -1,25 +1,24 @@
 @echo off
-chcp 65001
 SET PATH=%PATH%;C:\python27
 
-echo ä¸Šå‚³ã€Œä½æ”¶å…¥æˆ¶ã€æ¡ˆä»¶â‹¯â‹¯
-python lib/app.py reset-fail ä½æ”¶
-python lib/app.py batchupload -t lowIncome ä½æ”¶
+echo ¤W¶Ç¡u§C¦¬¤J¤á¡v®×¥ó......
+python lib/app.py reset-fail §C¦¬
+python lib/app.py batchupload -t lowIncome §C¦¬
 
-echo ä¸Šå‚³ã€Œä¸­ä½æ”¶å…¥æˆ¶ã€æ¡ˆä»¶â‹¯â‹¯
-python lib/app.py reset-fail ä¸­ä½æ”¶
-python lib/app.py reset-fail -t mediumIncome ä¸­ä½æ”¶
+echo ¤W¶Ç¡u¤¤§C¦¬¤J¤á¡v®×¥ó......
+python lib/app.py reset-fail ¤¤§C¦¬
+python lib/app.py reset-fail -t mediumIncome ¤¤§C¦¬
 
-echo ä¸Šå‚³ã€Œä¸­ä½æ”¶å…¥è€äººã€æ¡ˆä»¶â‹¯â‹¯
-python lib/app.py reset-fail ä¸­ä½è€äºº
-python lib/app.py reset-fail -t mediumIncomeOld ä¸­ä½è€äºº
+echo ¤W¶Ç¡u¤¤§C¦¬¤J¦Ñ¤H¡v®×¥ó......
+python lib/app.py reset-fail ¤¤§C¦Ñ¤H
+python lib/app.py reset-fail -t mediumIncomeOld ¤¤§C¦Ñ¤H
 
-echo ä¸Šå‚³ã€Œèº«éšœã€æ¡ˆä»¶â‹¯â‹¯
-python lib/app.py reset-fail èº«éšœ
-python lib/app.py reset-fail -t disability èº«éšœ
+echo ¤W¶Ç¡u¨­»Ù¡v®×¥ó......
+python lib/app.py reset-fail ¨­»Ù
+python lib/app.py reset-fail -t disability ¨­»Ù
 
-echo ä¸Šå‚³ã€Œå…’å°‘ã€æ¡ˆä»¶â‹¯â‹¯
-python lib/app.py reset-fail å…’å°‘
-python lib/app.py reset-fail -t poorKid å…’å°‘
+echo ¤W¶Ç¡u¨à¤Ö¡v®×¥ó......
+python lib/app.py reset-fail ¨à¤Ö
+python lib/app.py reset-fail -t poorKid ¨à¤Ö
 
-echo ä¸Šå‚³å®Œæˆï¼Œå¯ä»¥æ‰“é–‹è³‡æ–™å¤¾çœ‹çœ‹çµæœå›‰ï¼:)
+echo ¤W¶Ç§¹¦¨¡A¥i¥H¥´¶}¸ê®Æ§¨¬İ¬İµ²ªGÅo¡I:)
